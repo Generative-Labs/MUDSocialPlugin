@@ -1,0 +1,15 @@
+{
+  "name": "root",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "npmClient": "yarn",
+  "devDependencies": {
+    "lerna": "^6.6.2"
+  },
+  "dependencies": {
+    "eslint": "^8.40.0",
+    "prettier": "^2.8.8"
+  }
+}
