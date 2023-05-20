@@ -11,7 +11,7 @@
     "initialize": "pnpm run tablegen && pnpm run worldgen && pnpm run build && pnpm run worldtypes && pnpm run tsgen",
     "lint": "pnpm run prettier && pnpm run solhint",
     "prettier": "prettier --write 'src/**/*.sol'",
-    "solhint": "solhint --config ./.solhint.json 'src/**/*.sol' --fix",
+    "solhint": "solhint --config .solhint.json 'src/**/*.sol' --fix",
     "tablegen": "mud tablegen",
     "test": "tsc --noEmit && mud test",
     "tsgen": "mud tsgen --configPath mud.config.ts --out ../client/src/mud",

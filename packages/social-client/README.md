@@ -21,7 +21,7 @@
 > Only the latest version of vite is currently supported
 
 ```bash
-npm create vite@latest web3mq-example-vite
+npm create vite@latest web3mq-examples-vite
 ```
 
 ### Install

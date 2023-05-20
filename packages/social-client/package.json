@@ -14,7 +14,7 @@
     "conversation"
   ],
   "scripts": {
-    "dev": "set NODE_ENV=developemnt&& rollup -c rollup.config.js -w",
+    "dev": "set NODE_ENV=developemnt&& rollup -c rollup.config.js",
     "test": "set NODE_ENV=developemnt&& rollup -c rollup.config.js -w",
     "build": "rm -fr dist && set NODE_ENV=production&& rollup -c rollup.config.js"
   },
