@@ -56,7 +56,7 @@ const App: React.FC = () => {
 
     return (
         <div>
-            <button onClick={init}>init12211</button>
+            <button onClick={init}>init</button>
             <div>
                 <input value={sendMessage} type="text" onChange={event => setSendMessage(event.target.value)}/>
                 <button onClick={sendHello}>send hello</button>

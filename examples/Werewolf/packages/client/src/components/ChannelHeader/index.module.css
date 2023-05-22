@@ -1,0 +1,12 @@
+.headerBox {
+  font-family: 'Inter', sans-serif;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 26px;
+  line-height: 30px;
+  color: #18181B;
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  padding: 4px;
+}
