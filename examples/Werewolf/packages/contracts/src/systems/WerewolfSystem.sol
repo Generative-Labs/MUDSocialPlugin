@@ -198,7 +198,7 @@ contract WerewolfSystem is System {
       DayStatus.set(keccak256("DayStatus"), DayStatusEnum.DAY);
     }
 
-    who_is_be_killed_msg = strConcat(NickName.get(keccak256(target_user)), " was be killed.");
+    who_is_be_killed_msg = strConcat(NickName.get(addressToEntityKey(target_user)), " was be killed.");
 
     SYSTEM_MSG.set(keccak256("SYSTEM_MSG"), strConcat(system_msg, who_is_be_killed_msg));
 
