@@ -1,0 +1,46 @@
+
+.chatBox {
+    background: #FFFFFF;
+    border: 1px solid #E4E4E7;
+    border-radius: 24px;
+    padding: 20px 0;
+    width: 1152px;
+    height: 740px;
+    margin: 0 auto;
+}
+
+.chatContent {
+    width: 1150px;
+    height: 700px;
+}
+
+.messageHeader{
+    height: 72px;
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f4f4f5;
+}
+.messageHeader .leftHeader {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+
+    font-family: 'Inter', sans-serif;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 16px;
+    color: #18181B;
+}
+.voteButton {
+    text-align: center;
+}
+.messageListBox {
+    background-image: url("./icons/daysBgc.svg");
+    background-size: cover;
+    background-repeat: no-repeat;
+;
+
+
+}
