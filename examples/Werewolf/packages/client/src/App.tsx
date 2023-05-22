@@ -129,7 +129,6 @@ export const App = () => {
       content: "night is comming",
       messageType: "werewolf_notify",
     });
-
     await client.message.sendMessage(notify);
   };
   return (
@@ -143,6 +142,9 @@ export const App = () => {
       </div>
       <div>
         <button onClick={startGame}>startGame</button>
+      </div>
+      <div>
+        <button onClick={sendNotify}>sendNotify</button>
       </div>
 
       {/*{activeChannel && (*/}
@@ -186,17 +188,12 @@ export const App = () => {
                   </Button>
                 </div>
                 <MessageList className={ss.messageListBox} />
-                <MessageConsole
-                  Input={
-                    <MessageInput
-                      Input={disableInput ? DisableMsgInput : MsgInput}
-                    />
-                  }
-                />
+                <MessageConsole Input={<MessageInput Input={MsgInput} />} />
               </Window>
             </Channel>
           </Chat>
         </div>
+        {disableInput && <div className={ss.disableInputBox}></div>}
       </div>
       {/*)}*/}
     </div>

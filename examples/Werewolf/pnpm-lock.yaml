@@ -65,8 +65,8 @@ importers:
         specifier: ^1.0.13
         version: 1.0.13
       '@web3mq/react-components':
-        specifier: ^1.0.45
-        version: 1.0.45(@mysten/sui.js@0.34.0)(@types/react@18.2.6)(@web3mq/client@1.0.13)(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^1.0.46
+        version: 1.0.46(@mysten/sui.js@0.34.0)(@types/react@18.2.6)(@web3mq/client@1.0.13)(react-dom@18.2.0)(react@18.2.0)
       classnames:
         specifier: ^2.3.2
         version: 2.3.2
@@ -4133,8 +4133,8 @@ packages:
       - encoding
     dev: false
 
-  /@web3mq/react-components@1.0.45(@mysten/sui.js@0.34.0)(@types/react@18.2.6)(@web3mq/client@1.0.13)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-rUSC+lJKTRLH16p2+pxKQsjIoQ/RV/sZyYONMWhcaH0aWWBh+a0ak15RwjbufhsF8YM5v0o9hu69VBsEp1wuPA==}
+  /@web3mq/react-components@1.0.46(@mysten/sui.js@0.34.0)(@types/react@18.2.6)(@web3mq/client@1.0.13)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-bpmK11J1zR29P92fbToa2IH+l3/NHSDkGaVgepDDqecIu9KlYLleVgevsBujuX6EJNt6RHsmYLx0tBUoWLP+KQ==}
     peerDependencies:
       '@web3mq/client': ^1.0.13
       react: ^18.2.0 || ^17.0.0 || ^16.8.0

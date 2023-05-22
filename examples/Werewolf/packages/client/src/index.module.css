@@ -7,6 +7,7 @@
     width: 1152px;
     height: 740px;
     margin: 0 auto;
+    position: relative;
 }
 
 .chatContent {
@@ -40,7 +41,13 @@
     background-image: url("./icons/daysBgc.svg");
     background-size: cover;
     background-repeat: no-repeat;
-;
+}
 
-
+.disableInputBox {
+    width: 800px;
+    height: 70px;
+    position: absolute;
+    bottom: 20px;
+    right: 0;
+    background: rgba(255, 255, 255, 0.5);
 }
