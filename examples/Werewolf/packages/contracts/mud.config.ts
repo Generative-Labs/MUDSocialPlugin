@@ -20,6 +20,7 @@ export default mudConfig({
     FarmerCount: "uint256",
     WolfmanCount: "uint256",
     SYSTEM_MSG: "string",
+    NickName: "string",
   },
   enums: {
     Actor: ["Farmer", "Wolfman"],

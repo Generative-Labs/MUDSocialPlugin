@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { System } from "@latticexyz/world/src/System.sol";
 
-import { GameRounds, Players, PlayersData, GameStatus, DayStatus, Victim, GroupChatID, PlayersIDList, Creator, FarmerCount, WolfmanCount, SYSTEM_MSG } from "../codegen/Tables.sol";
+import { GameRounds, Players, PlayersData, GameStatus, DayStatus, Victim, GroupChatID, PlayersIDList, Creator, FarmerCount, WolfmanCount, SYSTEM_MSG, NickName } from "../codegen/Tables.sol";
 import { Actor, Camp, GameStatusEnum, DayStatusEnum } from "../codegen/Types.sol";
 
 contract WerewolfSystem is System {
@@ -46,7 +46,7 @@ contract WerewolfSystem is System {
     return true;
   }
 
-  function joinGame() public returns (bool) {
+  function joinGame(string memory nick_name) public returns (bool) {
     require(Players.get(addressToEntityKey(msg.sender)).players_id != msg.sender, "you are in this game already.");
     require(PlayersIDList.get(keccak256("PlayersIDList")).length < 6, "no empty postions.");
 
@@ -60,7 +60,20 @@ contract WerewolfSystem is System {
 
     PlayersIDList.push(keccak256("PlayersIDList"), msg.sender);
 
-    SYSTEM_MSG.set(keccak256("SYSTEM_MSG"), strConcat(addressToAsciiString(msg.sender), "joined this game."));
+    NickName.set(addressToEntityKey(msg.sender), nick_name);
+
+    SYSTEM_MSG.set(keccak256("SYSTEM_MSG"), strConcat(nick_name, " joined this game."));
+
+    return true;
+  }
+
+  function startGame() public returns (bool) {
+    require(GameStatus.get(keccak256("GameStatus")) == GameStatusEnum.UNSTART, "game is running.");
+    require(PlayersIDList.length(keccak256("GameStatus")) == 6, "players are not enough.");
+    GameStatus.set(keccak256("GameStatus"), GameStatusEnum.STARTED);
+    SYSTEM_MSG.set(keccak256("SYSTEM_MSG"), "it is night now, close your eyes please.");
+
+    gameRoundsIncrement();
 
     return true;
   }
@@ -68,17 +81,33 @@ contract WerewolfSystem is System {
   function leaveGame() public returns (bool) {
     require(Players.get(addressToEntityKey(msg.sender)).players_id == msg.sender, "you are not in this game already.");
     Players.deleteRecord(addressToEntityKey(msg.sender));
-    SYSTEM_MSG.set(keccak256("SYSTEM_MSG"), strConcat(addressToAsciiString(msg.sender), "left this game."));
+    SYSTEM_MSG.set(
+      keccak256("SYSTEM_MSG"),
+      strConcat(NickName.get(addressToEntityKey(msg.sender)), " has left this game.")
+    );
     return true;
   }
 
-  function setGroupChatID(string memory _groupChatID) public returns (bool) {
-    GroupChatID.set(keccak256("GroupChatID"), _groupChatID);
+  function gameRoundsIncrement() internal returns (bool) {
+    GameRounds.set(keccak256("GameRounds"), GameRounds.get(keccak256("GameRounds")) + 1);
     return true;
   }
 
-  function getGroupChatID() public view returns (string memory) {
-    return GroupChatID.get(keccak256("GroupChatID"));
+  function setGroupChatID(string memory _groupChatID, bool isPrivate) public returns (bool) {
+    if (isPrivate) {
+      GroupChatID.set(keccak256("privateGroupChatID"), _groupChatID);
+    } else {
+      GroupChatID.set(keccak256("GroupChatID"), _groupChatID);
+    }
+    return true;
+  }
+
+  function getGroupChatID(bool isPrivate) public view returns (string memory) {
+    if (isPrivate) {
+      return GroupChatID.get(keccak256("privateGroupChatID"));
+    } else {
+      return GroupChatID.get(keccak256("GroupChatID"));
+    }
   }
 
   function getPlayerInfo(address player_address) public view returns (string memory) {
@@ -147,8 +176,9 @@ contract WerewolfSystem is System {
     return uint256(keccak256(abi.encodePacked(block.timestamp, msg.sender, randNonce))) % _modulus;
   }
 
-  function kill(address target_user) public returns (bool) {
+  function kill(address target_user) internal returns (bool) {
     string memory system_msg;
+    string memory who_is_be_killed_msg;
     require(Victim.get(keccak256("Victim")) != address(0), "choose a Victim first.");
     require(Players.get(addressToEntityKey(msg.sender)).isDead == false, "a dead man could not do anything.");
     require(
@@ -159,22 +189,31 @@ contract WerewolfSystem is System {
     Players.setIsDead(addressToEntityKey(target_user), true);
 
     Victim.set(keccak256("Victim"), address(0));
+
     if (DayStatus.get(keccak256("DayStatus")) == DayStatusEnum.DAY) {
-      system_msg = "it is night now.";
+      system_msg = "it is night now, please close your eyes. ";
       DayStatus.set(keccak256("DayStatus"), DayStatusEnum.NIGHT);
     } else {
-      system_msg = "it is day now.";
+      system_msg = "it is day now. ";
       DayStatus.set(keccak256("DayStatus"), DayStatusEnum.DAY);
     }
-    SYSTEM_MSG.set(keccak256("SYSTEM_MSG"), system_msg);
+
+    who_is_be_killed_msg = strConcat(NickName.get(keccak256(target_user)), " was be killed.");
+
+    SYSTEM_MSG.set(keccak256("SYSTEM_MSG"), strConcat(system_msg, who_is_be_killed_msg));
+
+    gameRoundsIncrement();
 
     return true;
   }
 
   function chooseVictim(address victim) public returns (bool) {
-    require(Victim.get(keccak256("Victim")) == address(0), "you can not change the Victim before he was killed.");
     require(Players.get(addressToEntityKey(victim)).players_id != address(0), "this player is not exists.");
-    Victim.set(keccak256("Victim"), victim);
+    if (Victim.get(keccak256("Victim")) == address(0)) {
+      Victim.set(keccak256("Victim"), victim);
+    } else if (Victim.get(keccak256("Victim")) == victim) {
+      kill(victim);
+    }
     return true;
   }
 

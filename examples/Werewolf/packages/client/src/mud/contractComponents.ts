@@ -173,5 +173,20 @@ export function defineContractComponents(world: World) {
         }
       );
     })(),
+    NickName: (() => {
+      const tableId = new TableId("", "NickName");
+      return defineComponent(
+        world,
+        {
+          value: RecsType.String,
+        },
+        {
+          metadata: {
+            contractId: tableId.toHexString(),
+            tableId: tableId.toString(),
+          },
+        }
+      );
+    })(),
   };
 }
