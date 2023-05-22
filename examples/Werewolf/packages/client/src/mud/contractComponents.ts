@@ -5,8 +5,8 @@ import { defineComponent, Type as RecsType, World } from "@latticexyz/recs";
 
 export function defineContractComponents(world: World) {
   return {
-    Counter: (() => {
-      const tableId = new TableId("", "Counter");
+    GameRounds: (() => {
+      const tableId = new TableId("", "GameRounds");
       return defineComponent(
         world,
         {
@@ -25,9 +25,70 @@ export function defineContractComponents(world: World) {
       return defineComponent(
         world,
         {
-          owner: RecsType.String,
-          name: RecsType.String,
-          color: RecsType.String,
+          players_id: RecsType.String,
+          isDead: RecsType.Boolean,
+          actor: RecsType.Number,
+          camp: RecsType.Number,
+        },
+        {
+          metadata: {
+            contractId: tableId.toHexString(),
+            tableId: tableId.toString(),
+          },
+        }
+      );
+    })(),
+    GameStatus: (() => {
+      const tableId = new TableId("", "GameStatus");
+      return defineComponent(
+        world,
+        {
+          value: RecsType.String,
+        },
+        {
+          metadata: {
+            contractId: tableId.toHexString(),
+            tableId: tableId.toString(),
+          },
+        }
+      );
+    })(),
+    Victim: (() => {
+      const tableId = new TableId("", "Victim");
+      return defineComponent(
+        world,
+        {
+          value: RecsType.String,
+        },
+        {
+          metadata: {
+            contractId: tableId.toHexString(),
+            tableId: tableId.toString(),
+          },
+        }
+      );
+    })(),
+    GroupChatID: (() => {
+      const tableId = new TableId("", "GroupChatID");
+      return defineComponent(
+        world,
+        {
+          value: RecsType.String,
+        },
+        {
+          metadata: {
+            contractId: tableId.toHexString(),
+            tableId: tableId.toString(),
+          },
+        }
+      );
+    })(),
+    PlayersIDList: (() => {
+      const tableId = new TableId("", "PlayersIDList");
+      return defineComponent(
+        world,
+        {
+          value: RecsType.StringArray,
         },
         {
           metadata: {
