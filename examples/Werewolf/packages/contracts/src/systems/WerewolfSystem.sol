@@ -5,30 +5,7 @@ import { System } from "@latticexyz/world/src/System.sol";
 
 // import { GameRounds, Victim, Player, GroupChatID, PlayersIDList, GameStatus } from "../codegen/Tables.sol";
 
-contract Werewolf is System {
-  GameStatus public game_status;
-  DayStatus public day_status;
-  address private creator; //used to finish current round
-  uint256 public game_rounds;
-
-  string public groupChatID;
-
-  // mapping(address => string) msg_box;
-
-  address[] private players_list;
-  mapping(address => Player)[] private players_mapping;
-
-  uint private farmerCount = 0;
-  uint private wolfmanCount = 0;
-  uint private oracleCount = 0;
-
-  string public SYSTEM_MSG;
-
-  // Initializing the state variable
-  uint randNonce = 0;
-
-  address private Victim;
-
+contract WerewolfSystem is System {
   struct Player {
     address players_id;
     Actor actor;
@@ -42,15 +19,12 @@ contract Werewolf is System {
     GAMEOVER
   }
 
-  enum DayStatus {
-    DAY,
-    NIGHT
-  }
+  bytes32 private DAY = keccak256("DAY");
+  bytes32 private NIGHT = keccak256("NIGHT");
 
   enum Actor {
-    Farmer, //3
-    Wolfman, //2
-    Oracle //1
+    Farmer,
+    Wolfman
   }
 
   enum Camp {
@@ -58,9 +32,33 @@ contract Werewolf is System {
     Bad
   }
 
+  string private game_status;
+  string private day_status;
+
+  address private creator; //used to finish current round
+  uint256 public game_rounds;
+
+  string private groupChatID;
+
+  // mapping(address => string) msg_box;
+
+  address[] private players_list;
+  mapping(address => Player)[] private players_mapping;
+
+  uint256 private farmerCount = 0;
+  uint256 private wolfmanCount = 0;
+  uint256 private oracleCount = 0;
+
+  string public SYSTEM_MSG;
+
+  // Initializing the state variable
+  uint256 randNonce = 0;
+
+  address private Victim;
+
   function initGameData() public returns (bool) {
     require(creator == address(0), "game was started.");
-    game_status = GameStatus.UNSTART;
+    game_status = "";
     creator = address(0);
     game_rounds = 0;
     groupChatID = "";
@@ -110,34 +108,49 @@ contract Werewolf is System {
     return groupChatID;
   }
 
-  function getPlayerInfo(address player_address) public returns (Player memory) {
-    return players_mapping[0][player_address];
+  function getPlayerInfo(address player_address) public view returns (string memory) {
+    Player memory player = players_mapping[0][player_address];
+    string memory actor = "";
+    string memory camp = "";
+    string memory isDead = "";
+    if (player.actor == Actor.Farmer) {
+      actor = "Farmer";
+    } else {
+      actor = "Wolfman";
+    }
+
+    if (player.camp == Camp.Good) {
+      camp = "Good";
+    } else {
+      camp = "Bad";
+    }
+
+    if (player.isDead) {
+      isDead = "true";
+    } else {
+      isDead = "false";
+    }
+
+    return strConcat(strConcat(strConcat(actor, ","), camp), isDead);
   }
 
-  function setGameStatus(GameStatus _gamestatus) public returns (bool) {
+  function setGameStatus(string memory _gamestatus) public returns (bool) {
     game_status = _gamestatus;
     return true;
   }
 
-  function getGameStatus() public view returns (GameStatus) {
+  function getGameStatus() public view returns (string memory) {
     return game_status;
   }
 
-  function setDayStatus(DayStatus _daystatus) public returns (bool) {
+  function setDayStatus(string memory _daystatus) public returns (bool) {
     day_status = _daystatus;
     return true;
   }
 
-  function getDayStatus() public view returns (DayStatus) {
+  function getDayStatus() public view returns (string memory) {
     return day_status;
   }
-
-  // function increment() public returns (uint32) {
-  //   uint32 counter = Counter.get();
-  //   uint32 newValue = counter + 1;
-  //   Counter.set(newValue);
-  //   return newValue;
-  // }
 
   function vote(address target_user) public returns (bool) {
     require(players_mapping[0][msg.sender].isDead == false, "a dead man could not do anything.");
@@ -146,19 +159,11 @@ contract Werewolf is System {
   }
 
   // Defining a function to generate a random number
-  function randMod(uint _modulus) external returns (uint) {
+  function randMod(uint256 _modulus) external returns (uint256) {
     // increase nonce
     randNonce++;
-    return uint(keccak256(abi.encodePacked(block.timestamp, msg.sender, randNonce))) % _modulus;
+    return uint256(keccak256(abi.encodePacked(block.timestamp, msg.sender, randNonce))) % _modulus;
   }
-
-  // function whispering(address target_user, string memory message) public returns (bool) {
-  //   require(players_mapping[0][msg.sender].isDead == false, "a dead man could not do anything.");
-  //   require(players_mapping[0][msg.sender].actor == Actor.Wolfman, "you are not a Wolfman.");
-  //   require(players_mapping[0][target_user].actor == Actor.Wolfman, "target player is not a Wolfman.");
-  //   msg_box[target_user] = message;
-  //   return true;
-  // }
 
   function kill(address target_user) public returns (bool) {
     require(Victim != address(0), "choose a Victim first.");
@@ -167,7 +172,7 @@ contract Werewolf is System {
     require(players_mapping[0][target_user].isDead == false, "this player was dead, you can not kill him twice.");
     players_mapping[0][target_user].isDead = true;
     Victim = address(0);
-    if (day_status == DayStatus.DAY) {
+    if (keccak256(abi.encodePacked(day_status)) == DAY) {
       SYSTEM_MSG = "it is nighty now.";
     } else {
       SYSTEM_MSG = "it is day now.";
@@ -187,5 +192,16 @@ contract Werewolf is System {
     creator = address(0);
     initGameData();
     return true;
+  }
+
+  function strConcat(string memory _a, string memory _b) internal pure returns (string memory) {
+    bytes memory _ba = bytes(_a);
+    bytes memory _bb = bytes(_b);
+    string memory ret = new string(_ba.length + _bb.length);
+    bytes memory bret = bytes(ret);
+    uint k = 0;
+    for (uint i = 0; i < _ba.length; i++) bret[k++] = _ba[i];
+    for (uint i = 0; i < _bb.length; i++) bret[k++] = _bb[i];
+    return string(ret);
   }
 }
