@@ -8,6 +8,8 @@ interface IWerewolfSystem {
 
   function joinGame() external returns (bool);
 
+  function leaveGame() external returns (bool);
+
   function setGroupChatID(string memory _groupChatID) external returns (bool);
 
   function getGroupChatID() external view returns (string memory);
