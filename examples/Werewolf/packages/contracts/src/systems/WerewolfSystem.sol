@@ -60,6 +60,15 @@ contract WerewolfSystem is System {
 
     PlayersIDList.push(keccak256("PlayersIDList"), msg.sender);
 
+    SYSTEM_MSG.set(keccak256("SYSTEM_MSG"), strConcat(addressToAsciiString(msg.sender), "joined this game."));
+
+    return true;
+  }
+
+  function leaveGame() public returns (bool) {
+    require(Players.get(addressToEntityKey(msg.sender)).players_id == msg.sender, "you are not in this game already.");
+    Players.deleteRecord(addressToEntityKey(msg.sender));
+    SYSTEM_MSG.set(keccak256("SYSTEM_MSG"), strConcat(addressToAsciiString(msg.sender), "left this game."));
     return true;
   }
 
@@ -151,7 +160,7 @@ contract WerewolfSystem is System {
 
     Victim.set(keccak256("Victim"), address(0));
     if (DayStatus.get(keccak256("DayStatus")) == DayStatusEnum.DAY) {
-      system_msg = "it is nighty now.";
+      system_msg = "it is night now.";
       DayStatus.set(keccak256("DayStatus"), DayStatusEnum.NIGHT);
     } else {
       system_msg = "it is day now.";
@@ -189,5 +198,22 @@ contract WerewolfSystem is System {
 
   function addressToEntityKey(address addr) internal pure returns (bytes32) {
     return bytes32(uint256(uint160(addr)));
+  }
+
+  function addressToAsciiString(address x) internal pure returns (string memory) {
+    bytes memory s = new bytes(40);
+    for (uint i = 0; i < 20; i++) {
+      bytes1 b = bytes1(uint8(uint(uint160(x)) / (2 ** (8 * (19 - i)))));
+      bytes1 hi = bytes1(uint8(b) / 16);
+      bytes1 lo = bytes1(uint8(b) - 16 * uint8(hi));
+      s[2 * i] = char(hi);
+      s[2 * i + 1] = char(lo);
+    }
+    return string(s);
+  }
+
+  function char(bytes1 b) internal pure returns (bytes1 c) {
+    if (uint8(b) < 10) return bytes1(uint8(b) + 0x30);
+    else return bytes1(uint8(b) + 0x57);
   }
 }
