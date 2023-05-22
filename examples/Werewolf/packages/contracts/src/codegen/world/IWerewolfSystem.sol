@@ -16,11 +16,7 @@ interface IWerewolfSystem {
 
   function setGameStatus(string memory _gamestatus) external returns (bool);
 
-  function getGameStatus() external view returns (string memory);
-
   function setDayStatus(string memory _daystatus) external returns (bool);
-
-  function getDayStatus() external view returns (string memory);
 
   function vote(address target_user) external returns (bool);
 

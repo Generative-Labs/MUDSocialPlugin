@@ -4,5 +4,174 @@ import { TableId } from "@latticexyz/utils";
 import { defineComponent, Type as RecsType, World } from "@latticexyz/recs";
 
 export function defineContractComponents(world: World) {
-  return {};
+  return {
+    GameRounds: (() => {
+      const tableId = new TableId("", "GameRounds");
+      return defineComponent(
+        world,
+        {
+          value: RecsType.Number,
+        },
+        {
+          metadata: {
+            contractId: tableId.toHexString(),
+            tableId: tableId.toString(),
+          },
+        }
+      );
+    })(),
+    Players: (() => {
+      const tableId = new TableId("", "Players");
+      return defineComponent(
+        world,
+        {
+          players_id: RecsType.String,
+          actor: RecsType.Number,
+          camp: RecsType.Number,
+          isDead: RecsType.Boolean,
+        },
+        {
+          metadata: {
+            contractId: tableId.toHexString(),
+            tableId: tableId.toString(),
+          },
+        }
+      );
+    })(),
+    PlayersIDList: (() => {
+      const tableId = new TableId("", "PlayersIDList");
+      return defineComponent(
+        world,
+        {
+          value: RecsType.StringArray,
+        },
+        {
+          metadata: {
+            contractId: tableId.toHexString(),
+            tableId: tableId.toString(),
+          },
+        }
+      );
+    })(),
+    GameStatus: (() => {
+      const tableId = new TableId("", "GameStatus");
+      return defineComponent(
+        world,
+        {
+          value: RecsType.Number,
+        },
+        {
+          metadata: {
+            contractId: tableId.toHexString(),
+            tableId: tableId.toString(),
+          },
+        }
+      );
+    })(),
+    DayStatus: (() => {
+      const tableId = new TableId("", "DayStatus");
+      return defineComponent(
+        world,
+        {
+          value: RecsType.Number,
+        },
+        {
+          metadata: {
+            contractId: tableId.toHexString(),
+            tableId: tableId.toString(),
+          },
+        }
+      );
+    })(),
+    Victim: (() => {
+      const tableId = new TableId("", "Victim");
+      return defineComponent(
+        world,
+        {
+          value: RecsType.String,
+        },
+        {
+          metadata: {
+            contractId: tableId.toHexString(),
+            tableId: tableId.toString(),
+          },
+        }
+      );
+    })(),
+    GroupChatID: (() => {
+      const tableId = new TableId("", "GroupChatID");
+      return defineComponent(
+        world,
+        {
+          value: RecsType.String,
+        },
+        {
+          metadata: {
+            contractId: tableId.toHexString(),
+            tableId: tableId.toString(),
+          },
+        }
+      );
+    })(),
+    Creator: (() => {
+      const tableId = new TableId("", "Creator");
+      return defineComponent(
+        world,
+        {
+          value: RecsType.String,
+        },
+        {
+          metadata: {
+            contractId: tableId.toHexString(),
+            tableId: tableId.toString(),
+          },
+        }
+      );
+    })(),
+    FarmerCount: (() => {
+      const tableId = new TableId("", "FarmerCount");
+      return defineComponent(
+        world,
+        {
+          value: RecsType.BigInt,
+        },
+        {
+          metadata: {
+            contractId: tableId.toHexString(),
+            tableId: tableId.toString(),
+          },
+        }
+      );
+    })(),
+    WolfmanCount: (() => {
+      const tableId = new TableId("", "WolfmanCount");
+      return defineComponent(
+        world,
+        {
+          value: RecsType.BigInt,
+        },
+        {
+          metadata: {
+            contractId: tableId.toHexString(),
+            tableId: tableId.toString(),
+          },
+        }
+      );
+    })(),
+    SYSTEM_MSG: (() => {
+      const tableId = new TableId("", "SYSTEM_MSG");
+      return defineComponent(
+        world,
+        {
+          value: RecsType.String,
+        },
+        {
+          metadata: {
+            contractId: tableId.toHexString(),
+            tableId: tableId.toString(),
+          },
+        }
+      );
+    })(),
+  };
 }

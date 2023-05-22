@@ -3,7 +3,8 @@ pragma solidity >=0.8.0;
 
 import { System } from "@latticexyz/world/src/System.sol";
 
-// import { GameRounds, Victim, Player, GroupChatID, PlayersIDList, GameStatus } from "../codegen/Tables.sol";
+import { GameRounds, Players, PlayersData, GameStatus, DayStatus, Victim, GroupChatID, PlayersIDList, Creator, FarmerCount, WolfmanCount, SYSTEM_MSG } from "../codegen/Tables.sol";
+import { Actor, Camp, GameStatusEnum, DayStatusEnum } from "../codegen/Types.sol";
 
 contract WerewolfSystem is System {
   struct Player {
@@ -13,103 +14,66 @@ contract WerewolfSystem is System {
     bool isDead;
   }
 
-  enum GameStatus {
-    UNSTART,
-    STARTED,
-    GAMEOVER
-  }
+  bytes32 private DAYSTATUS_DAY = keccak256("DAY");
+  bytes32 private DAYSTATUS_NIGHT = keccak256("NIGHT");
 
-  bytes32 private DAY = keccak256("DAY");
-  bytes32 private NIGHT = keccak256("NIGHT");
-
-  enum Actor {
-    Farmer,
-    Wolfman
-  }
-
-  enum Camp {
-    Good,
-    Bad
-  }
-
-  string private game_status;
-  string private day_status;
-
-  address private creator; //used to finish current round
-  uint256 public game_rounds;
-
-  string private groupChatID;
-
-  // mapping(address => string) msg_box;
-
-  address[] private players_list;
-  mapping(address => Player)[] private players_mapping;
-
-  uint256 private farmerCount = 0;
-  uint256 private wolfmanCount = 0;
-  uint256 private oracleCount = 0;
-
-  string public SYSTEM_MSG;
+  bytes32 private GAMESTATUS_UNSTART = keccak256("UNSTART");
+  bytes32 private GAMESTATUS_STARTED = keccak256("STARTED");
+  bytes32 private GAMESTATUS_GAMEOVER = keccak256("GAMEOVER");
 
   // Initializing the state variable
   uint256 randNonce = 0;
 
-  address private Victim;
-
   function initGameData() public returns (bool) {
-    require(creator == address(0), "game was started.");
-    game_status = "";
-    creator = address(0);
-    game_rounds = 0;
-    groupChatID = "";
+    require(Creator.get(keccak256("Creator")) == address(0), "game was started.");
+    GameStatus.set(keccak256("GameStatus"), GameStatusEnum.UNSTART);
+    Creator.set(keccak256("Creator"), address(0));
+    Victim.set(keccak256("Creator"), address(0));
+    GameRounds.set(keccak256("GameRounds"), 0);
+    GroupChatID.set(keccak256("GroupChatID"), "");
+    FarmerCount.set(keccak256("FarmerCount"), 0);
+    WolfmanCount.set(keccak256("WolfmanCount"), 0);
 
-    delete players_mapping;
+    address[] memory players_address_list = PlayersIDList.get(keccak256("PlayersIDList"));
 
-    do {
-      players_list.pop();
-    } while (players_list.length > 0);
+    for (uint i = 0; i < players_address_list.length; i++) {
+      Players.deleteRecord(addressToEntityKey(players_address_list[i]));
+      PlayersIDList.deleteRecord(keccak256("PlayersIDList"));
+    }
 
-    farmerCount = 0;
-    wolfmanCount = 0;
-    oracleCount = 0;
     randNonce = 0;
 
     return true;
   }
 
   function joinGame() public returns (bool) {
-    require(players_mapping[0][msg.sender].players_id != msg.sender, "you are in this game already.");
-    require(players_list.length < 6, "no empty postions.");
+    require(Players.get(addressToEntityKey(msg.sender)).players_id != msg.sender, "you are in this game already.");
+    require(PlayersIDList.get(keccak256("PlayersIDList")).length < 6, "no empty postions.");
 
-    Player memory player;
-    player.players_id = msg.sender;
-    player.isDead = false;
-
-    if (farmerCount < 4) {
-      player.actor = Actor.Farmer;
-      player.camp = Camp.Good;
-    } else if (wolfmanCount < 2) {
-      player.actor = Actor.Wolfman;
-      player.camp = Camp.Bad;
+    if (FarmerCount.get(keccak256("FarmerCount")) < 4) {
+      Players.set(addressToEntityKey(msg.sender), msg.sender, Actor.Farmer, Camp.Good, false);
+      FarmerCount.set(keccak256("FarmerCount"), FarmerCount.get(keccak256("FarmerCount")) + 1);
+    } else if (WolfmanCount.get(keccak256("WolfmanCount")) < 2) {
+      Players.set(addressToEntityKey(msg.sender), msg.sender, Actor.Wolfman, Camp.Bad, false);
+      WolfmanCount.set(keccak256("WolfmanCount"), WolfmanCount.get(keccak256("WolfmanCount")) + 1);
     }
 
-    players_mapping[0][msg.sender] = player;
-    players_list.push(msg.sender);
+    PlayersIDList.push(keccak256("PlayersIDList"), msg.sender);
 
     return true;
   }
 
   function setGroupChatID(string memory _groupChatID) public returns (bool) {
-    groupChatID = _groupChatID;
+    GroupChatID.set(keccak256("GroupChatID"), _groupChatID);
     return true;
   }
 
   function getGroupChatID() public view returns (string memory) {
-    return groupChatID;
+    return GroupChatID.get(keccak256("GroupChatID"));
   }
 
   function getPlayerInfo(address player_address) public view returns (string memory) {
-    Player memory player = players_mapping[0][player_address];
+    PlayersData memory player = Players.get(addressToEntityKey(player_address));
     string memory actor = "";
     string memory camp = "";
     string memory isDead = "";
@@ -135,26 +99,35 @@ contract WerewolfSystem is System {
   }
 
   function setGameStatus(string memory _gamestatus) public returns (bool) {
-    game_status = _gamestatus;
-    return true;
-  }
-
-  function getGameStatus() public view returns (string memory) {
-    return game_status;
+    bytes32 game_status = keccak256(abi.encodePacked(_gamestatus));
+    if (GAMESTATUS_UNSTART == game_status) {
+      GameStatus.set(keccak256("GameStatus"), GameStatusEnum.UNSTART);
+      return true;
+    } else if (GAMESTATUS_STARTED == game_status) {
+      GameStatus.set(keccak256("GameStatus"), GameStatusEnum.STARTED);
+      return true;
+    } else if (GAMESTATUS_GAMEOVER == game_status) {
+      GameStatus.set(keccak256("GameStatus"), GameStatusEnum.GAMEOVER);
+      return true;
+    }
+    return false;
   }
 
   function setDayStatus(string memory _daystatus) public returns (bool) {
-    day_status = _daystatus;
-    return true;
-  }
-
-  function getDayStatus() public view returns (string memory) {
-    return day_status;
+    bytes32 day_status = keccak256(abi.encodePacked(_daystatus));
+    if (DAYSTATUS_DAY == day_status) {
+      DayStatus.set(keccak256("DayStatus"), DayStatusEnum.DAY);
+      return true;
+    } else if (DAYSTATUS_DAY == day_status) {
+      DayStatus.set(keccak256("DayStatus"), DayStatusEnum.NIGHT);
+      return true;
+    }
+    return false;
   }
 
   function vote(address target_user) public returns (bool) {
-    require(players_mapping[0][msg.sender].isDead == false, "a dead man could not do anything.");
-    require(players_mapping[0][target_user].isDead == false, "you can not voting to a dead player.");
+    require(Players.get(addressToEntityKey(msg.sender)).isDead == false, "a dead man could not do anything.");
+    require(Players.get(addressToEntityKey(target_user)).isDead == false, "you can not voting to a dead player.");
     return true;
   }
 
@@ -166,30 +139,39 @@ contract WerewolfSystem is System {
   }
 
   function kill(address target_user) public returns (bool) {
-    require(Victim != address(0), "choose a Victim first.");
-    require(players_mapping[0][msg.sender].isDead == false, "a dead man could not do anything.");
-    // require(players_mapping[0][target_user].actor == Actor.Wolfman, "this player was dead, you can not kill him twice.");
-    require(players_mapping[0][target_user].isDead == false, "this player was dead, you can not kill him twice.");
-    players_mapping[0][target_user].isDead = true;
-    Victim = address(0);
-    if (keccak256(abi.encodePacked(day_status)) == DAY) {
-      SYSTEM_MSG = "it is nighty now.";
+    string memory system_msg;
+    require(Victim.get(keccak256("Victim")) != address(0), "choose a Victim first.");
+    require(Players.get(addressToEntityKey(msg.sender)).isDead == false, "a dead man could not do anything.");
+    require(
+      Players.get(addressToEntityKey(target_user)).isDead == false,
+      "this player was dead, you can not kill him twice."
+    );
+
+    Players.setIsDead(addressToEntityKey(target_user), true);
+
+    Victim.set(keccak256("Victim"), address(0));
+    if (DayStatus.get(keccak256("DayStatus")) == DayStatusEnum.DAY) {
+      system_msg = "it is nighty now.";
+      DayStatus.set(keccak256("DayStatus"), DayStatusEnum.NIGHT);
     } else {
-      SYSTEM_MSG = "it is day now.";
+      system_msg = "it is day now.";
+      DayStatus.set(keccak256("DayStatus"), DayStatusEnum.DAY);
     }
+    SYSTEM_MSG.set(keccak256("SYSTEM_MSG"), system_msg);
+
     return true;
   }
 
   function chooseVictim(address victim) public returns (bool) {
-    require(Victim == address(0), "you can not change the Victim before he was killed.");
-    require(players_mapping[0][victim].players_id != address(0), "this player is not exists.");
-    Victim = victim;
+    require(Victim.get(keccak256("Victim")) == address(0), "you can not change the Victim before he was killed.");
+    require(Players.get(addressToEntityKey(victim)).players_id != address(0), "this player is not exists.");
+    Victim.set(keccak256("Victim"), victim);
     return true;
   }
 
   function endGame() public returns (bool) {
-    require(msg.sender == creator, "you are not the creator of this game");
-    creator = address(0);
+    require(msg.sender == Creator.get(keccak256("Creator")), "you are not the creator of this game");
+    Creator.set(keccak256("Creator"), address(0));
     initGameData();
     return true;
   }
@@ -203,5 +185,9 @@ contract WerewolfSystem is System {
     for (uint i = 0; i < _ba.length; i++) bret[k++] = _ba[i];
     for (uint i = 0; i < _bb.length; i++) bret[k++] = _bb[i];
     return string(ret);
+  }
+
+  function addressToEntityKey(address addr) internal pure returns (bytes32) {
+    return bytes32(uint256(uint160(addr)));
   }
 }
