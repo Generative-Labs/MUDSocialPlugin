@@ -48,9 +48,8 @@ const useLogin = (privateKey: string) => {
       password
     );
   };
-  const connectWeb3MQNetwork = async () => {
+  const connectWeb3MQNetwork = async (nickname: string) => {
     const avatarUrl = "";
-    const nickname = "";
     const accountAddress = web3.eth.defaultAccount?.toLowerCase() || "";
     const { userid, userExist } = await Client.register.getUserInfo({
       did_value: accountAddress,

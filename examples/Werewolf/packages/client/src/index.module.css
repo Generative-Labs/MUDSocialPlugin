@@ -5,17 +5,17 @@
     border-radius: 24px;
     padding: 20px 0;
     width: 1152px;
-    height: 740px;
+    height: 640px;
     margin: 0 auto;
     position: relative;
 }
 
 .chatContent {
     width: 1150px;
-    height: 700px;
+    height: 600px;
 }
 
-.messageHeader{
+.messageHeader {
     height: 72px;
     padding: 16px;
     display: flex;
@@ -23,6 +23,7 @@
     align-items: center;
     border-bottom: 1px solid #f4f4f5;
 }
+
 .messageHeader .leftHeader {
     display: flex;
     justify-content: left;
@@ -34,9 +35,14 @@
     font-size: 16px;
     color: #18181B;
 }
+
 .voteButton {
+    position: absolute;
+    top: 30px;
+    right: 30px;
     text-align: center;
 }
+
 .messageListBox {
     background-image: url("./icons/daysBgc.svg");
     background-size: cover;
@@ -50,4 +56,121 @@
     bottom: 20px;
     right: 0;
     background: rgba(255, 255, 255, 0.5);
+}
+
+.deadStyle {
+    width: 1152px;
+    height: 640px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: rgba(255, 255, 255, 0.5);
+    /*line-height: 640;*/
+    color: red;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.deadStyle .emoj {
+    font-size: 80px;
+    width: 100%;
+}
+.deadStyle .title {
+    font-size: 30px;
+    width: 100%;
+    font-family: 'Helvetica Neue', sans-serif;
+}
+
+.login_container {
+    width: 1152px;
+    height: 740px;
+    /*height: 100vh;*/
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    margin: 0 auto;
+
+    /*background: url("../../assets/banner_web 1.png")  no-repeat top center;*/
+}
+
+.testBgc {
+    position: fixed;
+    z-index: -1;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.connectBtnBox {
+    width: 473px;
+    max-height: 342px;
+    background: #FFFFFF;
+    border: 1px solid #E4E4E7;
+    box-shadow: 0px 4px 6px -2px rgba(0, 0, 0, 0.05), 0px 6px 15px -3px rgba(0, 0, 0, 0.1);
+    border-radius: 18px;
+    text-align: center;
+    padding: 56px 48px;
+}
+
+.connectMobileBtnBox {
+    border: none;
+    box-shadow: none;
+}
+
+.connectBtnBox .connectBtnBoxText {
+    font-family: 'Inter', sans-serif;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    text-align: center;
+    color: #71717A;
+    margin-top: 12px;
+}
+
+.connectBtnBox .connectBtnBoxTitle {
+    font-family: 'Inter', sans-serif;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 26px;
+    text-align: center;
+    color: #18181B;
+    margin-top: 24px;
+}
+
+.connectBtnBox .walletConnectBtnBox {
+    width: 100%;
+    margin-top: 34px;
+
+}
+
+.connectBtnBox .walletConnectBtnBox .walletConnectBtn {
+    width: 100%;
+    height: 44px;
+    border-radius: 8px;
+}
+
+.nicknameInput {
+    height: 40px;
+    width: 100%;
+    border: 1px solid #D4D4D8;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    padding-left: 20px;
+}
+
+.voteBtns {
+    column-count: 2;
+    column-gap: 1em;
+    padding: 16px;
+}
+
+.voteBtn {
+    width: 100%;
+    margin-bottom: 12px;
 }
