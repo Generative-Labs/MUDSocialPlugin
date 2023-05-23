@@ -71,8 +71,8 @@ contract WerewolfSystem is System {
     require(GameStatus.get(keccak256("GameStatus")) == GameStatusEnum.UNSTART, "game is running.");
     require(PlayersIDList.length(keccak256("GameStatus")) == 6, "players are not enough.");
     GameStatus.set(keccak256("GameStatus"), GameStatusEnum.STARTED);
+    DayStatus.set(keccak256("DayStatus"), DayStatusEnum.NIGHT);
     SYSTEM_MSG.set(keccak256("SYSTEM_MSG"), "it is night now, close your eyes please.");
-
     gameRoundsIncrement();
 
     return true;
