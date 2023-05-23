@@ -21,6 +21,7 @@ export default mudConfig({
     WolfmanCount: "uint256",
     SYSTEM_MSG: "string",
     NickName: "string",
+    DeadPlayersIDList: "address[]",
   },
   enums: {
     Actor: ["Farmer", "Wolfman"],

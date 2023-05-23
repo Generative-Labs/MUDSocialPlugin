@@ -15,3 +15,4 @@ import { FarmerCount, FarmerCountTableId } from "./tables/FarmerCount.sol";
 import { WolfmanCount, WolfmanCountTableId } from "./tables/WolfmanCount.sol";
 import { SYSTEM_MSG, SYSTEM_MSGTableId } from "./tables/SYSTEM_MSG.sol";
 import { NickName, NickNameTableId } from "./tables/NickName.sol";
+import { DeadPlayersIDList, DeadPlayersIDListTableId } from "./tables/DeadPlayersIDList.sol";

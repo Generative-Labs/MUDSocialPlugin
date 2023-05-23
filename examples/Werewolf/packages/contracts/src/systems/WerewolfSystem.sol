@@ -3,7 +3,7 @@ pragma solidity >=0.8.0;
 
 import { System } from "@latticexyz/world/src/System.sol";
 
-import { GameRounds, Players, PlayersData, GameStatus, DayStatus, Victim, GroupChatID, PlayersIDList, Creator, FarmerCount, WolfmanCount, SYSTEM_MSG, NickName } from "../codegen/Tables.sol";
+import { GameRounds, Players, PlayersData, GameStatus, DayStatus, Victim, GroupChatID, PlayersIDList, Creator, FarmerCount, WolfmanCount, SYSTEM_MSG, NickName, DeadPlayersIDList } from "../codegen/Tables.sol";
 import { Actor, Camp, GameStatusEnum, DayStatusEnum } from "../codegen/Types.sol";
 
 contract WerewolfSystem is System {
@@ -21,9 +21,6 @@ contract WerewolfSystem is System {
   bytes32 private GAMESTATUS_STARTED = keccak256("STARTED");
   bytes32 private GAMESTATUS_GAMEOVER = keccak256("GAMEOVER");
 
-  // Initializing the state variable
-  uint256 randNonce = 0;
-
   function initGameData() public returns (bool) {
     require(Creator.get(keccak256("Creator")) == address(0), "game was started.");
     GameStatus.set(keccak256("GameStatus"), GameStatusEnum.UNSTART);
@@ -38,10 +35,10 @@ contract WerewolfSystem is System {
 
     for (uint i = 0; i < players_address_list.length; i++) {
       Players.deleteRecord(addressToEntityKey(players_address_list[i]));
-      PlayersIDList.deleteRecord(keccak256("PlayersIDList"));
     }
 
-    randNonce = 0;
+    PlayersIDList.deleteRecord(keccak256("PlayersIDList"));
+    DeadPlayersIDList.deleteRecord(keccak256("PlayersIDList"));
 
     return true;
   }
@@ -167,13 +164,6 @@ contract WerewolfSystem is System {
     return false;
   }
 
-  // Defining a function to generate a random number
-  function randMod(uint256 _modulus) external returns (uint256) {
-    // increase nonce
-    randNonce++;
-    return uint256(keccak256(abi.encodePacked(block.timestamp, msg.sender, randNonce))) % _modulus;
-  }
-
   function kill(address target_user) internal returns (bool) {
     require(Victim.get(keccak256("Victim")) != address(0), "choose a Victim first.");
     require(Players.get(addressToEntityKey(msg.sender)).isDead == false, "a dead man could not do anything.");
@@ -186,6 +176,9 @@ contract WerewolfSystem is System {
     string memory who_is_be_killed_msg;
 
     Players.setIsDead(addressToEntityKey(target_user), true);
+
+    DeadPlayersIDList.push(keccak256("DeadPlayersIDList"), target_user);
+
     if (Players.get(addressToEntityKey(target_user)).actor == Actor.Farmer) {
       FarmerCount.set(keccak256("FarmerCount"), FarmerCount.get(keccak256("FarmerCount")) - 1);
     } else {

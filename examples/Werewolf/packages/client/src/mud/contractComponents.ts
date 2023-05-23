@@ -188,5 +188,20 @@ export function defineContractComponents(world: World) {
         }
       );
     })(),
+    DeadPlayersIDList: (() => {
+      const tableId = new TableId("", "DeadPlayersIDLis");
+      return defineComponent(
+        world,
+        {
+          value: RecsType.StringArray,
+        },
+        {
+          metadata: {
+            contractId: tableId.toHexString(),
+            tableId: tableId.toString(),
+          },
+        }
+      );
+    })(),
   };
 }

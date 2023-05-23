@@ -22,10 +22,6 @@ interface IWerewolfSystem {
 
   function setDayStatus(string memory _daystatus) external returns (bool);
 
-  function vote(address target_user) external returns (bool);
-
-  function randMod(uint256 _modulus) external returns (uint256);
-
   function chooseVictim(address victim) external returns (bool);
 
   function endGame() external returns (bool);
