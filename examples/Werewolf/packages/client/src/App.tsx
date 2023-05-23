@@ -402,7 +402,7 @@ export const App = () => {
           <div className={ss.deadStyle}>
             <div>
               <div className={ss.emoj}>☠️</div>
-              <div className={ss.title}>Your are lost !!!</div>
+              <div className={ss.title}>You are lost !!!</div>
             </div>
           </div>
         )}
