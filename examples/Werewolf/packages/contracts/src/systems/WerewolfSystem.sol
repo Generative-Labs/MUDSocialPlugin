@@ -175,14 +175,15 @@ contract WerewolfSystem is System {
   }
 
   function kill(address target_user) internal returns (bool) {
-    string memory system_msg;
-    string memory who_is_be_killed_msg;
     require(Victim.get(keccak256("Victim")) != address(0), "choose a Victim first.");
     require(Players.get(addressToEntityKey(msg.sender)).isDead == false, "a dead man could not do anything.");
     require(
       Players.get(addressToEntityKey(target_user)).isDead == false,
       "this player was dead, you can not kill him twice."
     );
+
+    string memory system_msg;
+    string memory who_is_be_killed_msg;
 
     Players.setIsDead(addressToEntityKey(target_user), true);
     if (Players.get(addressToEntityKey(target_user)).actor == Actor.Farmer) {
@@ -214,10 +215,17 @@ contract WerewolfSystem is System {
     require(Players.get(addressToEntityKey(victim)).players_id != address(0), "this player is not exists.");
     if (Victim.get(keccak256("Victim")) == address(0)) {
       Victim.set(keccak256("Victim"), victim);
+      if (
+        Players.get(addressToEntityKey(msg.sender)).actor == Actor.Wolfman &&
+        WolfmanCount.get(keccak256("WolfmanCount")) == 1
+      ) {
+        kill(victim);
+        return true;
+      }
     } else if (Victim.get(keccak256("Victim")) == victim) {
       kill(victim);
+      return true;
     }
-    return true;
   }
 
   function endGame() public returns (bool) {
