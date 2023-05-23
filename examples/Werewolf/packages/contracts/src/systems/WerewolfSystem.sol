@@ -47,6 +47,10 @@ contract WerewolfSystem is System {
   }
 
   function joinGame(string memory nick_name) public returns (bool) {
+    require(
+      GameStatus.get(keccak256("GameStatus")) == GameStatusEnum.UNSTART,
+      "game was started, you can join it next time."
+    );
     require(Players.get(addressToEntityKey(msg.sender)).players_id != msg.sender, "you are in this game already.");
     require(PlayersIDList.get(keccak256("PlayersIDList")).length < 6, "no empty postions.");
 
@@ -163,12 +167,6 @@ contract WerewolfSystem is System {
     return false;
   }
 
-  function vote(address target_user) public returns (bool) {
-    require(Players.get(addressToEntityKey(msg.sender)).isDead == false, "a dead man could not do anything.");
-    require(Players.get(addressToEntityKey(target_user)).isDead == false, "you can not voting to a dead player.");
-    return true;
-  }
-
   // Defining a function to generate a random number
   function randMod(uint256 _modulus) external returns (uint256) {
     // increase nonce
@@ -187,6 +185,11 @@ contract WerewolfSystem is System {
     );
 
     Players.setIsDead(addressToEntityKey(target_user), true);
+    if (Players.get(addressToEntityKey(target_user)).actor == Actor.Farmer) {
+      FarmerCount.set(keccak256("FarmerCount"), FarmerCount.get(keccak256("FarmerCount")) - 1);
+    } else {
+      WolfmanCount.set(keccak256("WolfmanCount"), WolfmanCount.get(keccak256("WolfmanCount")) - 1);
+    }
 
     Victim.set(keccak256("Victim"), address(0));
 
@@ -204,7 +207,7 @@ contract WerewolfSystem is System {
 
     gameRoundsIncrement();
 
-    return true;
+    return checkWinner();
   }
 
   function chooseVictim(address victim) public returns (bool) {
@@ -221,6 +224,22 @@ contract WerewolfSystem is System {
     require(msg.sender == Creator.get(keccak256("Creator")), "you are not the creator of this game");
     Creator.set(keccak256("Creator"), address(0));
     initGameData();
+    return true;
+  }
+
+  function checkWinner() internal returns (bool) {
+    uint256 farmers = FarmerCount.get(keccak256("FarmerCount"));
+    uint256 wolfmen = WolfmanCount.get(keccak256("WolfmanCount"));
+    string memory Winer;
+    if (wolfmen == 0) {
+      GameStatus.set(keccak256("GameStatus"), GameStatusEnum.GAMEOVER);
+      Winer = "Farmer";
+      SYSTEM_MSG.set(keccak256("SYSTEM_MSG"), strConcat(Winer, " is the Winer."));
+    } else if (farmers <= wolfmen) {
+      GameStatus.set(keccak256("GameStatus"), GameStatusEnum.GAMEOVER);
+      Winer = "Wolfman";
+      SYSTEM_MSG.set(keccak256("SYSTEM_MSG"), strConcat(Winer, " is the Winer."));
+    }
     return true;
   }
 
